@@ -11,7 +11,7 @@ setuptools.setup(
     description="Mongodb operation.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/Michael07220823/new_timer.git",
+    url="https://github.com/Michael07220823/mongo.git",
     keywords="mongo",
     python_requires='>=3',
     install_requires=['RandomWordGenerator', 'pymongo', 'new_timer'],
