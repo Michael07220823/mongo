@@ -14,8 +14,8 @@ setuptools.setup(
     url="https://github.com/Michael07220823/mongo.git",
     keywords="mongo",
     python_requires='~=3.6',
-    install_requires=['RandomWordGenerator', 'pypandoc', 'pymongo', 'new_timer'],
-    license="MIT",
+    install_requires=['Random-Word-Generator', 'pypandoc', 'pymongo', 'new_timer'],
+    license="MIT License",
     packages=setuptools.find_packages(include=["mongo"]),
     classifiers=[
         "Programming Language :: Python :: 3",
