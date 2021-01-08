@@ -4,11 +4,6 @@ from RandomWordGenerator import RandomWord
 from pymongo import MongoClient, ReturnDocument, ASCENDING
 from new_timer.timer import get_now_time
 
-# Set logging config.
-FORMAT = '%(asctime)s [%(levelname)s] %(message)s'
-DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
-logging.basicConfig(level=logging.INFO, format=FORMAT, datefmt=DATE_FORMAT)
-
 
 class MongoDB(object):
     """
@@ -52,7 +47,7 @@ class MongoDB(object):
                 logging.debug("insert_results.inserted_id: {}".format(insert_results.inserted_id))
                 
         else:
-            logging.info("Inserting {} document to mongodb server...".format(documents))
+            logging.debug("Inserting {} document to mongodb server...".format(documents))
             insert_results = self.__coll.insert_one(documents)
             logging.debug("insert_results.inserted_id: {}".format(insert_results.inserted_id))
             logging.info("Inserted documents successfully !")
@@ -231,9 +226,9 @@ class MongoDB(object):
         self.__client.close()
 
 
-        def close(self):
-            """
-            Close mongodb connect.
-            """
-            logging.info("Closing mongodb connecting...")
-            self.__client.close()
+    def close(self):
+        """
+        Close mongodb connect.
+        """
+        logging.info("Closing mongodb connecting...")
+        self.__client.close()
