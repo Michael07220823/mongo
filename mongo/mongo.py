@@ -1,7 +1,3 @@
-# Usage
-# cd ..
-# python -m Smart_door_system_frontend_2.mongo.mongo
-
 import logging
 from random import randint, random
 from RandomWordGenerator import RandomWord
