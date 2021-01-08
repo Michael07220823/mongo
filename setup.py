@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf8") as fh:
 
 setuptools.setup(
     name="mongo",
-    version="0.0.5",
+    version="0.0.6",
     author="Overcomer",
     author_email="michael31703@gmail.com",
     description="Mongodb operation.",
