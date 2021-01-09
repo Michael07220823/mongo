@@ -88,8 +88,8 @@ class MongoDB(object):
                     logging.info("document: {}".format(doc))
                     logging.debug("document type: {}".format(type(doc)))
                     logging.info("Closing mongodb connecting...")
-                    self.__client.close()
-                    return documents
+                self.__client.close()
+                return documents
             else:
                 document = self.__coll.find(condition, sort=[sort])
                 logging.debug("mongo.MongoDB.query_document.documents data type: {}".format(type(documents)))
