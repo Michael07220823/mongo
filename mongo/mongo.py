@@ -2,7 +2,7 @@ import logging
 from random import randint, random
 from RandomWordGenerator import RandomWord
 from pymongo import MongoClient, ReturnDocument, ASCENDING
-from new_timer.timer import get_now_time
+from new_timer import get_now_time
 
 
 class MongoDB(object):
@@ -10,51 +10,31 @@ class MongoDB(object):
     MongoDb operation.
     """
     def __init__(self, url=str(), database=str(), collection=str()):
-        logging.info("Connecting to mongodb server...")
+        logging.info("Connecting to MongoDB server...")
         self.__client = MongoClient(url)
         self.__db = self.__client[database]
         self.__coll = self.__db[collection]
 
 
-    def insert_document(self, documents=dict(), many=False):
+    def insert_document(self, document=dict()):
         """
-        Insert documents to mongodb.
+        Insert documents to MongoDB.
 
         Args:
         -----
-        documents: Many documents.
+        document: Many documents.
+        """                
 
-        many: Choose insert single document or many documents.
-        """
-        if many == True:
-            if type(documents) == dict:
-                logging.critical("documents need to be a list or tuple data type!")
-                logging.debug("documents value: {}".format(documents))
-                logging.debug("documents type: {}".format(type(documents)))
-                return
+        try:
+            logging.debug("Inserting {} document to MongoDB server...".format(document))
+            insert_result = self.__coll.insert_one(document)
+            logging.debug("insert_document.insert_result.inserted_id: {}".format(insert_result.inserted_id))
+            logging.debug("Inserted documents successfully !")
+        except Exception as err:
+            logging.error(err, exc_info=True)
+            
 
-            logging.info("Inserting {} documents...".format(len(documents)))
-            for doc in documents:
-                logging.debug("Inserting {} document to mongodb server...".format(doc))
-                try:
-                    insert_results = self.__coll.insert_one(doc)
-                except TypeError:
-                    logging.error("Inserting document data type error !", exc_info=True)
-                    logging.debug("doc value: {}".format(doc))
-                    logging.debug("doc type: {}".format(type(doc)))
-                    self.__client.close()
-                    return
-                logging.debug("insert_results.inserted_id: {}".format(insert_results.inserted_id))
-                
-        else:
-            logging.debug("Inserting {} document to mongodb server...".format(documents))
-            insert_results = self.__coll.insert_one(documents)
-            logging.debug("insert_results.inserted_id: {}".format(insert_results.inserted_id))
-            logging.info("Inserted documents successfully !")
-
-
-
-    def query_document(self, condition=dict(), sort=list(), many=False):
+    def query_document(self, condition=dict(), sort=list()):
         """
         Quert document.
 
@@ -64,45 +44,24 @@ class MongoDB(object):
 
         sort: sort type before query.
 
-        documents: Many documents.
-
-        many: Choose insert single document or many documents.
-
 
         returns:
         --------
         document: single document.
-
-        documents: many documents.
         """
-        documents = list()
 
-        logging.info("Querying documents...")
+        logging.debug("Querying documents...")
         documents_count = self.__coll.count_documents(condition)
-        logging.info("Query matching documents count: {}".format(documents_count))
+        logging.debug("Query matching documents count: {}".format(documents_count))
 
         try:
-            if many == True:
-                for doc in self.__coll.find(condition, sort=[sort]):
-                    documents.append(doc)
-                    logging.info("document: {}".format(doc))
-                    logging.debug("document type: {}".format(type(doc)))
-                    logging.info("Closing mongodb connecting...")
-                self.__client.close()
-                return documents
-            else:
-                document = self.__coll.find(condition, sort=[sort])
-                logging.debug("mongo.MongoDB.query_document.documents data type: {}".format(type(documents)))
+            documents = self.__coll.find(condition, sort=[sort])
+            logging.debug("query_document.documents data type: {}".format(type(documents)))
+            logging.debug("query_document.documents: {}".format(documents))
 
-                document = document.next()
-                logging.debug("First document: {}".format(document))
-                logging.info("Closing mongodb connecting...")
-                self.__client.close()
-
-                return document
+            return documents
         except StopIteration:
-            logging.info("No document !")
-
+            logging.warning("No document !")
 
 
     def update_documents(self, condition=dict(), data=dict(), sort=list()):
@@ -126,18 +85,16 @@ class MongoDB(object):
 
         while document != None:
             document = self.__coll.find_one_and_update(condition,
-                                                data, 
-                                                upsert=False,
-                                                sort=[sort], 
-                                                return_document=ReturnDocument.AFTER)
+                                                       data, 
+                                                       upsert=False,
+                                                       sort=[sort], 
+                                                       return_document=ReturnDocument.AFTER)
             if document == None:
                 logging.info("Not finded any matching document ! ")
             else:
                 logging.debug(document)
 
         logging.info("Updated documents finish !")
-        logging.info("Closing mongodb connecting...")
-        self.__client.close()
 
 
     def delete_documents(self, condition=dict(), sort=list()):
@@ -161,13 +118,11 @@ class MongoDB(object):
             logging.debug("Delete document: {}".format(document))
 
         logging.info("Deleted {} documents successfully !".format(document_count))
-        logging.info("Closing mongodb connecting...")
-        self.__client.close()
 
 
     def generate_random_documents(self, random_type=str, size=10):
         """
-        Generate random documents to mongodb.
+        Generate random documents to MongoDB.
 
         Args:
         -----
@@ -192,7 +147,7 @@ class MongoDB(object):
             logging.warning("random_type data type error ! only str、int and float type.", exc_info=True)
             raise TypeError
 
-        # Insert data to mongodb.
+        # Insert data to MongoDB.
         logging.info("Inserting {} type random data...".format(random_type))
         for i in range(size):
             if random_type == str:
@@ -222,13 +177,11 @@ class MongoDB(object):
                 logging.debug(self.__coll.insert_one({"name": name, "height": height, "weight": weight, "create_time": create_time}))
 
         logging.info("Insertd {} doduments successfully !".format(size))
-        logging.info("Closing mongodb connecting...")
-        self.__client.close()
 
 
     def close(self):
         """
-        Close mongodb connect.
+        Close MongoDB connect.
         """
-        logging.info("Closing mongodb connecting...")
+        logging.info("Closing MongoDB connected...")
         self.__client.close()
