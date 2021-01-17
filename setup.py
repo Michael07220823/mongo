@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf8") as fh:
 
 setuptools.setup(
     name="mongo",
-    version="0.0.15",
+    version="0.0.16",
     author="Overcomer",
     author_email="michael31703@gmail.com",
     description="Mongodb operation.",
@@ -14,7 +14,7 @@ setuptools.setup(
     url="https://github.com/Michael07220823/mongo.git",
     keywords="mongo",
     python_requires='~=3.6',
-    install_requires=['Random-Word-Generator', 'pypandoc', 'pymongo', 'new_timer'],
+    install_requires=['pypandoc', 'Random-Word-Generator', 'dnspython', 'pymongo', 'new_timer'],
     license="MIT License",
     packages=setuptools.find_packages(include=["mongo"]),
     classifiers=[
