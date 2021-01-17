@@ -9,9 +9,9 @@ class MongoDB(object):
     """
     MongoDb operation.
     """
-    def __init__(self, url=str(), database=str(), collection=str()):
+    def __init__(self, url=str(), database=str(), collection=str(), connect_timeout_ms=60):
         logging.info("Connecting to MongoDB server...")
-        self.__client = MongoClient(url)
+        self.__client = MongoClient(url, connectTimeoutMS=connect_timeout_ms)
         self.__db = self.__client[database]
         self.__coll = self.__db[collection]
 
