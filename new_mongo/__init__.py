@@ -1,5 +1,4 @@
 from .mongo import MongoDB
-from pymongo import ASCENDING
 
-__version__ = "0.0.1"
+__version__ = "0.0.6"
 __author__ = "Overcomer"

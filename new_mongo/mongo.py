@@ -10,7 +10,7 @@ class MongoDB(object):
     MongoDb operation.
     """
     def __init__(self,
-                 url=str(),
+                 host=str(),
                  username=str(),
                  password=str(),
                  auth_database="admin",
@@ -23,7 +23,7 @@ class MongoDB(object):
                  connect_timeout_ms=10000):
         
         logging.info("Connecting to MongoDB server...")
-        self.__client = MongoClient(host=url,
+        self.__client = MongoClient(host=host,
                                     username=username,
                                     password=password,
                                     authSource=auth_database,
@@ -33,8 +33,8 @@ class MongoDB(object):
                                     socketTimeoutMS=socket_timeout_ms,
                                     connectTimeoutMS=connect_timeout_ms)
         print(self.__client)
-        self.__db = self.__client[database]
-        self.__coll = self.__db[collection]
+        self.database = self.__client[database]
+        self.collection = self.database[collection]
 
 
     def insert_document(self, document=dict()):
@@ -43,19 +43,19 @@ class MongoDB(object):
 
         Args:
         -----
-        document: Many documents.
+        document: one document.
         """                
 
         try:
             logging.debug("Inserting {} document to MongoDB server...".format(document))
-            insert_result = self.__coll.insert_one(document)
+            insert_result = self.collection.insert_one(document)
             logging.debug("insert_document.insert_result.inserted_id: {}".format(insert_result.inserted_id))
             logging.debug("Inserted documents successfully !")
         except Exception as err:
             logging.error(err, exc_info=True)
             
 
-    def query_document(self, condition=dict(), sort=list()):
+    def query_document(self, condition=dict()):
         """
         Quert document.
 
@@ -72,11 +72,8 @@ class MongoDB(object):
         """
 
         logging.debug("Querying documents...")
-        documents_count = self.__coll.count_documents(condition)
-        logging.debug("Query matching documents count: {}".format(documents_count))
-
         try:
-            documents = self.__coll.find(condition, sort=[sort])
+            documents = self.collection.find(condition)
             logging.debug("query_document.documents data type: {}".format(type(documents)))
             logging.debug("query_document.documents: {}".format(documents))
 
@@ -101,15 +98,15 @@ class MongoDB(object):
         document = object()
 
         logging.info("Updating documents...")
-        documents_count = self.__coll.count_documents(condition)
+        documents_count = self.collection.count_documents(condition)
         logging.info("Updating documents count: {}".format(documents_count))
 
         while document != None:
-            document = self.__coll.find_one_and_update(condition,
-                                                       data, 
-                                                       upsert=False,
-                                                       sort=[sort], 
-                                                       return_document=ReturnDocument.AFTER)
+            document = self.collection.find_one_and_update(condition,
+                                                           data, 
+                                                           upsert=False,
+                                                           sort=[sort], 
+                                                           return_document=ReturnDocument.AFTER)
             if document == None:
                 logging.info("Not finded any matching document ! ")
             else:
@@ -131,11 +128,11 @@ class MongoDB(object):
         document = object()
 
         logging.info("Deleting documents...")
-        document_count = self.__coll.count_documents(condition)
+        document_count = self.collection.count_documents(condition)
         logging.info("Deleting documents count: {}".format(document_count))
 
         while document != None:
-            document = self.__coll.find_one_and_delete(condition, sort=[sort])
+            document = self.collection.find_one_and_delete(condition, sort=[sort])
             logging.debug("Delete document: {}".format(document))
 
         logging.info("Deleted {} documents successfully !".format(document_count))
@@ -147,8 +144,6 @@ class MongoDB(object):
 
         Args:
         -----
-        condition: query condition.
-
         random_type: Choose random data type. Has three type: int, float and str.
         
         size: Generate specified amount documents.
@@ -178,7 +173,7 @@ class MongoDB(object):
                 account_length = len(account)
                 password_length = len(password)
 
-                logging.debug(self.__coll.insert_one({"account": account + '@gmail.com', "password": password, "account_length": account_length, 
+                logging.debug(self.collection.insert_one({"account": account + '@gmail.com', "password": password, "account_length": account_length, 
                                                      "password_length": password_length, "create_time": create_time}))
             elif random_type == int:
                 create_time = get_now_time("%Y-%m-%d %H:%M:%S")
@@ -188,14 +183,14 @@ class MongoDB(object):
                 notebook_sales = randint(100000, 99999999)
                 pc_sales = randint(100000, 99999999)
 
-                logging.debug(self.__coll.insert_one({"year": year, "country": country, "computer_brand": computer_brand, 
+                logging.debug(self.collection.insert_one({"year": year, "country": country, "computer_brand": computer_brand, 
                                                      "notebook_sales": notebook_sales, "pc_sales": pc_sales, "create_time": create_time}))
             elif random_type == float:
                 create_time = get_now_time("%Y-%m-%d %H:%M:%S")
                 name = names[randint(0, len(names)-1)]
                 height = randint(150, 220) + round(random(), 2)
                 weight = randint(30, 100) + round(random(), 2)
-                logging.debug(self.__coll.insert_one({"name": name, "height": height, "weight": weight, "create_time": create_time}))
+                logging.debug(self.collection.insert_one({"name": name, "height": height, "weight": weight, "create_time": create_time}))
 
         logging.info("Insertd {} doduments successfully !".format(size))
 
