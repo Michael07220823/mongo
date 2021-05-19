@@ -32,7 +32,6 @@ class MongoDB(object):
                                     tlsCaFile=tls_ca_file,
                                     socketTimeoutMS=socket_timeout_ms,
                                     connectTimeoutMS=connect_timeout_ms)
-        print(self.__client)
         self.database = self.__client[database]
         self.collection = self.database[collection]
 
