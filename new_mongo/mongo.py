@@ -1,13 +1,13 @@
 import logging
 from random import randint, random
 from RandomWordGenerator import RandomWord
-from pymongo import MongoClient, ReturnDocument
+from pymongo import MongoClient
 from new_timer import get_now_time
 
 
 class MongoDB(object):
     """
-    MongoDb operation.
+    MongoDb CRUD operation and feed fake data.
     """
     def __init__(self,
                  host=str(),
@@ -22,7 +22,7 @@ class MongoDB(object):
                  socket_timeout_ms=10000,
                  connect_timeout_ms=10000):
         
-        logging.info("Connecting to MongoDB server...")
+        logging.info("Connecting to {} MongoDB server...".format(host))
         self.__client = MongoClient(host=host,
                                     username=username,
                                     password=password,
@@ -38,103 +38,69 @@ class MongoDB(object):
 
     def insert_document(self, document=dict()):
         """
-        Insert documents to MongoDB.
+        Insert document to MongoDB.
 
         Args:
         -----
-        document: one document.
+        document: One dict object.
         """                
 
-        try:
-            logging.debug("Inserting {} document to MongoDB server...".format(document))
-            insert_result = self.collection.insert_one(document)
-            logging.debug("insert_document.insert_result.inserted_id: {}".format(insert_result.inserted_id))
-            logging.debug("Inserted documents successfully !")
-        except Exception as err:
-            logging.error(err, exc_info=True)
+        logging.debug("Inserting {} document to MongoDB server...".format(document))
+        insert_result = self.collection.insert_one(document)
+        logging.debug("mongo.MongoDB.insert_document.insert_result.inserted_id: {}".format(insert_result.inserted_id))
             
-
-    def query_document(self, condition=dict()):
+            
+    def search_document(self, condition=dict()):
         """
-        Quert document.
+        Query document.
 
         Args:
         -----
-        condition: query condition.
-
-        sort: sort type before query.
+        condition: Query condition.
 
 
         returns:
         --------
-        document: single document.
+        documents: Single or many dict object.
         """
 
-        logging.debug("Querying documents...")
         try:
             documents = self.collection.find(condition)
-            logging.debug("query_document.documents data type: {}".format(type(documents)))
-            logging.debug("query_document.documents: {}".format(documents))
+            logging.debug("mongo.MongoDB.search_document.documents data type: {}".format(type(documents)))
+            logging.debug("mongo.MongoDB.search_document.documents: {}".format(documents))
 
             return documents
         except StopIteration:
             logging.warning("No document !")
 
 
-    def update_documents(self, condition=dict(), data=dict(), sort=list()):
+    def update_document(self, condition=dict(), data={"$set": {"age": 18}}):
         """
-        Quert document.
+        Update document value.
 
         Args:
         -----
         condition: query condition.
 
         data: Updating data value.
-        
-        sort: sort type before query.
         """
 
-        document = object()
-
-        logging.info("Updating documents...")
-        documents_count = self.collection.count_documents(condition)
-        logging.info("Updating documents count: {}".format(documents_count))
-
-        while document != None:
-            document = self.collection.find_one_and_update(condition,
-                                                           data, 
-                                                           upsert=False,
-                                                           sort=[sort], 
-                                                           return_document=ReturnDocument.AFTER)
-            if document == None:
-                logging.info("Not finded any matching document ! ")
-            else:
-                logging.debug(document)
-
-        logging.info("Updated documents finish !")
+        document = self.collection.update_one(condition, data)
+        logging.debug("mongo.MongoDB.update_documents.document: {}".format(document))
 
 
-    def delete_documents(self, condition=dict(), sort=list()):
+    def delete_document(self, condition=dict()):
         """
         Delete document.
 
         Args:
         -----
         condition: query condition.
-        
-        sort: sort type before query.
         """
         document = object()
 
-        logging.info("Deleting documents...")
-        document_count = self.collection.count_documents(condition)
-        logging.info("Deleting documents count: {}".format(document_count))
-
-        while document != None:
-            document = self.collection.find_one_and_delete(condition, sort=[sort])
-            logging.debug("Delete document: {}".format(document))
-
-        logging.info("Deleted {} documents successfully !".format(document_count))
+        document = self.collection.find_one_and_delete(condition)
+        logging.debug("Delete document: {}".format(document))
 
 
     def generate_random_documents(self, random_type=str, size=10):
@@ -149,7 +115,7 @@ class MongoDB(object):
         """
 
         # Define constant.
-        logging.info("Defining random data constant variable...")
+        logging.info("Initializing random data constant variable...")
         if random_type == str:
             rand_account = RandomWord(max_word_size=12, constant_word_size=False,include_digits=True)
             rand_passwd = RandomWord(max_word_size=20, constant_word_size=False, include_digits=True, include_special_chars=True)
